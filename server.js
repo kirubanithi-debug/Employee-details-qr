@@ -252,15 +252,29 @@ app.get('/', (req, res) => {
 
 // Local Dev Listener
 if (require.main === module && !IS_VERCEL) {
-  app.listen(PORT, '0.0.0.0', () => {
-    const localIp = getLocalNetworkIp();
-    console.log(`====================================================`);
-    console.log(`Employee Profile Link Generator running at:`);
-    console.log(`Local:   http://localhost:${PORT}`);
-    console.log(`Network: http://${localIp}:${PORT}`);
-    console.log(`Supabase Integration: ${supabase ? 'ACTIVE ⚡' : 'INACTIVE (Set keys in .env)'}`);
-    console.log(`====================================================`);
-  });
+  function startServer(targetPort) {
+    const server = app.listen(targetPort, '0.0.0.0', () => {
+      const localIp = getLocalNetworkIp();
+      console.log(`====================================================`);
+      console.log(`Employee Profile Link Generator running at:`);
+      console.log(`Local:   http://localhost:${targetPort}`);
+      console.log(`Network: http://${localIp}:${targetPort}`);
+      console.log(`Supabase Integration: ${supabase ? 'ACTIVE ⚡' : 'INACTIVE (Set keys in .env)'}`);
+      console.log(`====================================================`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        const nextPort = Number(targetPort) + 1;
+        console.log(`⚠️ Port ${targetPort} in use, trying port ${nextPort}...`);
+        startServer(nextPort);
+      } else {
+        console.error('Server error:', err);
+      }
+    });
+  }
+
+  startServer(PORT);
 }
 
 module.exports = app;
