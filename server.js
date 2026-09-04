@@ -76,7 +76,10 @@ const upload = multer({
       cb(new Error('Only image files are allowed!'), false);
     }
   }
-});
+}).fields([
+  { name: 'photo', maxCount: 1 },
+  { name: 'companyLogo', maxCount: 1 }
+]);
 
 // Middleware
 app.use(cors());
@@ -102,7 +105,7 @@ app.get('/api/network-info', (req, res) => {
 });
 
 // API Endpoint: Create Profile
-app.post('/api/profiles', upload.single('photo'), async (req, res) => {
+app.post('/api/profiles', upload, async (req, res) => {
   try {
     const content = (req.body.content || '').replace(/\r\n/g, '\n');
     if (!content.trim()) {
@@ -111,25 +114,28 @@ app.post('/api/profiles', upload.single('photo'), async (req, res) => {
 
     const id = generateUniqueId();
     let photoUrl = '/assets/default-avatar.svg';
+    let companyLogoUrl = '/assets/isdd-logo-dark.jpg';
 
-    // 1. Upload Photo (Supabase Bucket vs Memory/Base64 Fallback)
-    if (req.file) {
+    const photoFile = req.files && req.files['photo'] ? req.files['photo'][0] : null;
+    const companyLogoFile = req.files && req.files['companyLogo'] ? req.files['companyLogo'][0] : null;
+
+    // 1. Upload Employee Photo
+    if (photoFile) {
       if (supabase) {
         try {
-          const ext = path.extname(req.file.originalname) || '.jpg';
-          const fileName = `${id}-${Date.now()}${ext}`;
+          const ext = path.extname(photoFile.originalname) || '.jpg';
+          const fileName = `photo-${id}-${Date.now()}${ext}`;
           
           const { error: uploadError } = await supabase.storage
             .from('employee-photos')
-            .upload(fileName, req.file.buffer, {
-              contentType: req.file.mimetype || 'image/jpeg',
+            .upload(fileName, photoFile.buffer, {
+              contentType: photoFile.mimetype || 'image/jpeg',
               upsert: true
             });
 
           if (uploadError) {
             console.warn('Supabase photo upload warning:', uploadError.message);
-            // Fallback to Base64
-            photoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+            photoUrl = `data:${photoFile.mimetype};base64,${photoFile.buffer.toString('base64')}`;
           } else {
             const { data: publicUrlData } = supabase.storage
               .from('employee-photos')
@@ -137,39 +143,75 @@ app.post('/api/profiles', upload.single('photo'), async (req, res) => {
             photoUrl = publicUrlData.publicUrl;
           }
         } catch (e) {
-          console.error('Supabase Storage Exception:', e);
-          photoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+          console.error('Supabase Storage Exception (photo):', e);
+          photoUrl = `data:${photoFile.mimetype};base64,${photoFile.buffer.toString('base64')}`;
         }
       } else {
-        // Base64 Fallback for local/serverless
-        const mimeType = req.file.mimetype || 'image/jpeg';
-        photoUrl = `data:${mimeType};base64,${req.file.buffer.toString('base64')}`;
+        const mimeType = photoFile.mimetype || 'image/jpeg';
+        photoUrl = `data:${mimeType};base64,${photoFile.buffer.toString('base64')}`;
       }
     } else if (req.body.photoBase64) {
       photoUrl = req.body.photoBase64;
     }
 
+    // 2. Upload Company Logo (if uploaded)
+    if (companyLogoFile) {
+      if (supabase) {
+        try {
+          const ext = path.extname(companyLogoFile.originalname) || '.png';
+          const fileName = `logo-${id}-${Date.now()}${ext}`;
+          
+          const { error: logoUploadError } = await supabase.storage
+            .from('employee-photos')
+            .upload(fileName, companyLogoFile.buffer, {
+              contentType: companyLogoFile.mimetype || 'image/png',
+              upsert: true
+            });
+
+          if (logoUploadError) {
+            console.warn('Supabase logo upload warning:', logoUploadError.message);
+            companyLogoUrl = `data:${companyLogoFile.mimetype};base64,${companyLogoFile.buffer.toString('base64')}`;
+          } else {
+            const { data: publicUrlData } = supabase.storage
+              .from('employee-photos')
+              .getPublicUrl(fileName);
+            companyLogoUrl = publicUrlData.publicUrl;
+          }
+        } catch (e) {
+          console.error('Supabase Storage Exception (company logo):', e);
+          companyLogoUrl = `data:${companyLogoFile.mimetype};base64,${companyLogoFile.buffer.toString('base64')}`;
+        }
+      } else {
+        const mimeType = companyLogoFile.mimetype || 'image/png';
+        companyLogoUrl = `data:${mimeType};base64,${companyLogoFile.buffer.toString('base64')}`;
+      }
+    } else if (req.body.companyLogoBase64) {
+      companyLogoUrl = req.body.companyLogoBase64;
+    }
+
     const newProfile = {
       id,
       photoUrl,
+      companyLogoUrl,
       content,
       createdAt: new Date().toISOString()
     };
 
-    // 2. Save Profile (Supabase Database vs Local Memory Fallback)
+    // 3. Save Profile
     if (supabase) {
       const { error: dbError } = await supabase
         .from('employee_profiles')
         .insert([{
           id,
           photo_url: photoUrl,
+          company_logo_url: companyLogoUrl,
           content,
           created_at: newProfile.createdAt
         }]);
 
       if (dbError) {
         console.error('Supabase DB Insert Error:', dbError.message);
-        // Save to memory as backup
+        // Fallback save in memory
         memoryProfiles[id] = newProfile;
       }
     } else {
@@ -212,6 +254,7 @@ app.get('/api/profiles/:id', async (req, res) => {
         return res.json({
           id: data.id,
           photoUrl: data.photo_url || '/assets/default-avatar.svg',
+          companyLogoUrl: data.company_logo_url || '/assets/isdd-logo-dark.jpg',
           content: data.content,
           createdAt: data.created_at
         });
@@ -235,6 +278,10 @@ app.get('/api/profiles/:id', async (req, res) => {
 
   if (!profile) {
     return res.status(404).json({ error: 'Employee profile not found.' });
+  }
+
+  if (!profile.companyLogoUrl) {
+    profile.companyLogoUrl = '/assets/isdd-logo-dark.jpg';
   }
 
   res.json(profile);

@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewName = document.getElementById('previewName');
   const previewSize = document.getElementById('previewSize');
   const btnRemovePhoto = document.getElementById('btnRemovePhoto');
+
+  const companyLogoInput = document.getElementById('companyLogoInput');
+  const companyDropArea = document.getElementById('companyDropArea');
+  const companyPreviewContainer = document.getElementById('companyPreviewContainer');
+  const companyPreviewImg = document.getElementById('companyPreviewImg');
+  const companyPreviewName = document.getElementById('companyPreviewName');
+  const companyPreviewSize = document.getElementById('companyPreviewSize');
+  const btnRemoveCompanyLogo = document.getElementById('btnRemoveCompanyLogo');
+
   const contentInput = document.getElementById('contentInput');
   const btnGenerate = document.getElementById('btnGenerate');
 
@@ -17,8 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const toast = document.getElementById('toast');
 
   let selectedFile = null;
+  let selectedCompanyLogoFile = null;
 
-  // Drag and Drop Handling
+  // Drag and Drop Handling - Employee Photo
   ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
     dropArea.addEventListener(eventName, preventDefaults, false);
   });
@@ -78,6 +88,64 @@ document.addEventListener('DOMContentLoaded', () => {
     dropArea.style.display = 'flex';
   });
 
+  // Drag and Drop Handling - Company Logo
+  if (companyDropArea && companyLogoInput) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      companyDropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      companyDropArea.addEventListener(eventName, () => companyDropArea.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      companyDropArea.addEventListener(eventName, () => companyDropArea.classList.remove('dragover'), false);
+    });
+
+    companyDropArea.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files.length > 0) {
+        handleCompanyLogoFile(files[0]);
+      }
+    });
+
+    companyLogoInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        handleCompanyLogoFile(e.target.files[0]);
+      }
+    });
+
+    function handleCompanyLogoFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Please select a valid image file for company logo.');
+        return;
+      }
+      selectedCompanyLogoFile = file;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        companyPreviewImg.src = e.target.result;
+        companyPreviewName.textContent = file.name;
+        companyPreviewSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+        
+        companyDropArea.style.display = 'none';
+        companyPreviewContainer.classList.add('active');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (btnRemoveCompanyLogo) {
+      btnRemoveCompanyLogo.addEventListener('click', () => {
+        selectedCompanyLogoFile = null;
+        companyLogoInput.value = '';
+        companyPreviewImg.src = '';
+        companyPreviewContainer.classList.remove('active');
+        companyDropArea.style.display = 'flex';
+      });
+    }
+  }
+
   // Form Submit & Link Generation
   profileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -101,6 +169,9 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('content', rawContent); // exact unmodified plain text
       if (selectedFile) {
         formData.append('photo', selectedFile);
+      }
+      if (selectedCompanyLogoFile) {
+        formData.append('companyLogo', selectedCompanyLogoFile);
       }
 
       const response = await fetch('/api/profiles', {

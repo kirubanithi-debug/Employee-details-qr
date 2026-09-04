@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const loader = document.getElementById('loader');
   const profileContent = document.getElementById('profileContent');
   const errorState = document.getElementById('errorState');
+  const companyLogo = document.getElementById('companyLogo');
   const employeeAvatar = document.getElementById('employeeAvatar');
   const exactTextContent = document.getElementById('exactTextContent');
 
@@ -21,6 +22,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const data = await response.json();
+
+    // Set Company Logo
+    if (companyLogo) {
+      companyLogo.src = data.companyLogoUrl || '/assets/isdd-logo-dark.jpg';
+    }
 
     // Set Avatar Photo
     if (data.photoUrl) {
