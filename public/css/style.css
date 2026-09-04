@@ -252,11 +252,12 @@ body::after {
 }
 
 .preview-img {
-  width: 70px;
-  height: 70px;
+  width: 100px;
+  height: 100px;
   border-radius: var(--radius-md);
   object-fit: cover;
   border: 2px solid var(--accent-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .preview-info {
@@ -474,7 +475,7 @@ body::after {
 }
 
 .profile-header-banner {
-  height: 120px;
+  height: 150px;
   background: var(--accent-gradient);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   position: relative;
@@ -482,26 +483,32 @@ body::after {
 
 .profile-avatar-wrapper {
   position: absolute;
-  bottom: -45px;
+  bottom: -65px;
   left: 50%;
   transform: translateX(-50%);
-  width: 110px;
-  height: 110px;
-  border-radius: 50%;
-  padding: 4px;
+  width: 170px;
+  height: 170px;
+  border-radius: 28px; /* Sleek rounded square pass style */
+  padding: 5px;
   background: var(--bg-dark);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border: 2px solid var(--accent-primary);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.profile-avatar-wrapper:hover {
+  transform: translateX(-50%) scale(1.03);
 }
 
 .profile-avatar-img {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 23px;
   object-fit: cover;
 }
 
 .profile-body {
-  padding: 4rem 1.75rem 2rem 1.75rem;
+  padding: 5.25rem 1.75rem 2rem 1.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
