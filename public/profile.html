@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Profile</title>
+  <meta name="description" content="View employee profile details.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👤</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Profile Card Container -->
+    <main id="profileContainer" class="glass-card profile-card" style="padding:0; overflow:hidden;">
+      
+      <!-- Loading State -->
+      <div id="loader" class="state-loader">
+        <div class="spinner"></div>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Loading employee profile...</p>
+      </div>
+
+      <!-- Content State (Hidden until loaded) -->
+      <div id="profileContent" style="display: none;">
+        <!-- Header Banner & Avatar -->
+        <div class="profile-header-banner">
+          <div class="profile-avatar-wrapper">
+            <img id="employeeAvatar" class="profile-avatar-img" src="/assets/default-avatar.svg" alt="Employee Photo">
+          </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="profile-body">
+          <div class="profile-verified-tag">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            Verified Employee Profile
+          </div>
+
+          <!-- Unmodified Exact Text Display -->
+          <div id="exactTextContent" class="exact-text-box"></div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorState" class="state-loader" style="display: none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <h3 style="font-size: 1.1rem; color: #f87171;">Profile Not Found</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center;">
+          The requested employee link may be invalid or expired.
+        </p>
+      </div>
+
+    </main>
+
+  </div>
+
+  <script src="/js/profile.js"></script>
+</body>
+</html>

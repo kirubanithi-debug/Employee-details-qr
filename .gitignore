@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Runtime Data & File Uploads (ignore uploaded content, preserve directories)
+uploads/*
+!uploads/.gitkeep
+data/*
+!data/.gitkeep
+
+# Environment & Logs
+.env
+.env.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating System Files
+.DS_Store
+Thumbs.db

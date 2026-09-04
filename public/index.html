@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Profile Link Generator</title>
+  <meta name="description" content="Generate a unique shareable link for employee profiles effortlessly.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📇</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Unique Profile Generator
+      </div>
+      <h1 class="app-title">Employee Profile Link</h1>
+      <p class="app-subtitle">Upload employee photo and enter details to generate an instant shareable link.</p>
+    </header>
+
+    <!-- Main Generator Form Card -->
+    <main class="glass-card">
+      <form id="profileForm">
+        
+        <!-- Step 1: Photo Upload -->
+        <div class="form-group">
+          <label class="form-label">
+            Employee Photo
+            <span class="form-hint">(Optional, PNG/JPG up to 10MB)</span>
+          </label>
+
+          <!-- Drop Area -->
+          <div class="photo-upload-area" id="dropArea">
+            <input type="file" id="photoInput" class="photo-upload-input" accept="image/*">
+            <div class="upload-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div class="upload-text">
+              <strong>Click to upload</strong> or drag and drop employee photo
+            </div>
+          </div>
+
+          <!-- Selected Preview -->
+          <div class="photo-preview-container" id="previewContainer">
+            <img id="previewImg" class="preview-img" src="" alt="Employee Photo Preview">
+            <div class="preview-info">
+              <span id="previewName" class="preview-name">photo.jpg</span>
+              <span id="previewSize" class="preview-size">0 KB</span>
+            </div>
+            <button type="button" id="btnRemovePhoto" class="btn-remove-photo">Remove</button>
+          </div>
+        </div>
+
+        <!-- Step 2: Content Field -->
+        <div class="form-group">
+          <label class="form-label" for="contentInput">
+            Employee Information <span class="req">*</span>
+            <span class="form-hint">(Plain text, multiple lines allowed)</span>
+          </label>
+          <textarea 
+            id="contentInput" 
+            class="content-textarea" 
+            placeholder="Employee Name: Arun Kumar&#10;Employee ID: EMP001&#10;Designation: Structural Engineer&#10;Department: Design&#10;Company: ISDD&#10;Phone: XXXXXXXX&#10;Email: XXXXXXXX"
+            required
+          >Employee Name: Arun Kumar
+Employee ID: EMP001
+Designation: Structural Engineer
+Department: Design
+Company: ISDD
+Phone: XXXXXXXX
+Email: XXXXXXXX</textarea>
+        </div>
+
+        <!-- Generate Button -->
+        <button type="submit" id="btnGenerate" class="btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          Generate Link
+        </button>
+
+      </form>
+    </main>
+
+    <!-- Link Controls Section (Visible after generation) -->
+    <section id="resultCard" class="glass-card result-card">
+      <div class="result-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        Unique Link Generated Successfully!
+      </div>
+
+      <div class="url-box-wrapper">
+        <input type="text" id="generatedUrlInput" class="generated-url-input" readonly>
+      </div>
+
+      <div class="link-actions-grid">
+        <button type="button" id="btnCopyLink" class="btn-action btn-copy">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy Link
+        </button>
+
+        <a id="btnOpenLink" href="#" target="_blank" class="btn-action btn-open">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          Open Link
+        </a>
+      </div>
+
+      <!-- Optional Advanced Settings: Custom Public Domain -->
+      <div class="form-group" style="margin-top: 1rem;">
+        <label class="form-label" for="customDomainInput">
+          Website Domain / Public URL
+          <span class="form-hint">(Optional, e.g. https://myapp.com)</span>
+        </label>
+        <input 
+          type="text" 
+          id="customDomainInput" 
+          class="generated-url-input" 
+          style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 0.75rem; border-radius: var(--radius-md); width: 100%; color: var(--text-main);"
+          placeholder="Leave blank for local server address"
+        >
+      </div>
+
+      <p class="qr-note" style="margin-top: 0.5rem; text-align: left; background: rgba(99, 102, 241, 0.1); padding: 0.75rem; border-radius: var(--radius-sm); border-left: 3px solid #818cf8;">
+        ℹ️ <strong>Scanning QR Code on Mobile Devices:</strong><br>
+        Links with <code>localhost</code> only work on your computer. When publishing your website to a host (like Vercel, Netlify, or Render), enter your domain above so generated QR links work on any phone worldwide!
+      </p>
+    </section>
+
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    Link copied to clipboard!
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
