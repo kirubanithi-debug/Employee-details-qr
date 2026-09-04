@@ -114,7 +114,7 @@ app.post('/api/profiles', upload, async (req, res) => {
 
     const id = generateUniqueId();
     let photoUrl = '/assets/default-avatar.svg';
-    let companyLogoUrl = '/assets/isdd-logo-dark.jpg';
+    let companyLogoUrl = '/assets/isdd-logo-light.png';
 
     const photoFile = req.files && req.files['photo'] ? req.files['photo'][0] : null;
     const companyLogoFile = req.files && req.files['companyLogo'] ? req.files['companyLogo'][0] : null;
@@ -254,7 +254,7 @@ app.get('/api/profiles/:id', async (req, res) => {
         return res.json({
           id: data.id,
           photoUrl: data.photo_url || '/assets/default-avatar.svg',
-          companyLogoUrl: data.company_logo_url || '/assets/isdd-logo-dark.jpg',
+          companyLogoUrl: data.company_logo_url || '/assets/isdd-logo-light.png',
           content: data.content,
           createdAt: data.created_at
         });
@@ -280,8 +280,8 @@ app.get('/api/profiles/:id', async (req, res) => {
     return res.status(404).json({ error: 'Employee profile not found.' });
   }
 
-  if (!profile.companyLogoUrl) {
-    profile.companyLogoUrl = '/assets/isdd-logo-dark.jpg';
+  if (!profile.companyLogoUrl || profile.companyLogoUrl.includes('isdd-logo-dark.jpg')) {
+    profile.companyLogoUrl = '/assets/isdd-logo-light.png';
   }
 
   res.json(profile);

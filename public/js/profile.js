@@ -25,7 +25,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Set Company Logo
     if (companyLogo) {
-      companyLogo.src = data.companyLogoUrl || '/assets/isdd-logo-dark.jpg';
+      if (data.companyLogoUrl && !data.companyLogoUrl.includes('isdd-logo-dark.jpg')) {
+        companyLogo.src = data.companyLogoUrl;
+      } else {
+        companyLogo.src = '/assets/isdd-logo-light.png';
+      }
     }
 
     // Set Avatar Photo
