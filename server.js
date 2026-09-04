@@ -180,7 +180,7 @@ app.post('/api/profiles', upload.single('photo'), async (req, res) => {
     }
 
     const hostHeader = req.get('host') || `${getLocalNetworkIp()}:${PORT}`;
-    const protocol = req.protocol || 'http';
+    const protocol = req.headers['x-forwarded-proto'] || (IS_VERCEL ? 'https' : req.protocol || 'http');
     const shareableUrl = `${protocol}://${hostHeader}/e/${id}`;
 
     res.json({
