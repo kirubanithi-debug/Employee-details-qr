@@ -89,25 +89,7 @@ function renderStyledContent(rawText) {
       const label = line.substring(0, colonIndex + 1);
       const value = line.substring(colonIndex + 1);
       
-      let labelClass = 'profile-label';
-      let valueClass = 'profile-value';
-
-      const lowerLabel = label.toLowerCase();
-      if (lowerLabel.includes('name')) {
-        labelClass += ' label-name';
-        valueClass += ' value-name';
-      } else if (lowerLabel.includes('email')) {
-        labelClass += ' label-email';
-        valueClass += ' value-email';
-      } else if (lowerLabel.includes('phone') || lowerLabel.includes('mobile') || lowerLabel.includes('contact')) {
-        labelClass += ' label-phone';
-        valueClass += ' value-phone';
-      } else if (lowerLabel.includes('id')) {
-        labelClass += ' label-id';
-        valueClass += ' value-id';
-      }
-
-      return `<div class="profile-line"><span class="${labelClass}">${escapeHtml(label)}</span><span class="${valueClass}">${escapeHtml(value)}</span></div>`;
+      return `<div class="profile-line"><span class="profile-label">${escapeHtml(label)}</span><span class="profile-value">${escapeHtml(value)}</span></div>`;
     } else {
       return `<div class="profile-line"><span class="profile-text">${escapeHtml(line)}</span></div>`;
     }

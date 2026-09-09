@@ -475,57 +475,52 @@ body::after {
 }
 
 .profile-header-banner {
-  height: 220px;
-  background: var(--accent-gradient);
+  height: 240px;
+  background: #ffffff;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   position: relative;
   overflow: visible;
 }
 
+/* Full Header Background Logo Styling - 100% Complete, Uncut & Uncropped */
 .company-logo-badge {
   position: absolute;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   background: #ffffff;
-  border: 2px solid rgba(99, 102, 241, 0.4);
-  border-radius: var(--radius-md);
-  padding: 10px 24px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 16px 24px 75px 24px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.25);
-  max-width: 92%;
-  max-height: 110px;
   z-index: 2;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.company-logo-badge:hover {
-  transform: translateX(-50%) scale(1.03);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 25px rgba(99, 102, 241, 0.4);
+  overflow: hidden;
 }
 
 .company-logo-img {
-  max-height: 85px;
-  max-width: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  max-width: 95%;
+  max-height: 140px;
+  object-fit: contain; /* Guarantees 100% full logo visibility with ZERO cut off or cropping */
 }
 
 .profile-avatar-wrapper {
   position: absolute;
-  bottom: -65px;
+  bottom: -60px;
   left: 50%;
   transform: translateX(-50%);
-  width: 170px;
-  height: 170px;
-  border-radius: 28px; /* Sleek rounded square pass style */
-  padding: 5px;
-  background: var(--bg-dark);
-  border: 2px solid var(--accent-primary);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(99, 102, 241, 0.3);
+  width: 155px;
+  height: 155px;
+  border-radius: 26px; /* Sleek rounded square pass style */
+  padding: 4px;
+  background: #0f172a;
+  border: 3px solid #3b82f6;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.6), 0 0 22px rgba(59, 130, 246, 0.3);
   transition: transform 0.3s ease;
   z-index: 3;
 }
@@ -537,12 +532,12 @@ body::after {
 .profile-avatar-img {
   width: 100%;
   height: 100%;
-  border-radius: 23px;
+  border-radius: 21px;
   object-fit: cover;
 }
 
 .profile-body {
-  padding: 5.25rem 1.75rem 2rem 1.75rem;
+  padding: 4.75rem 1.75rem 2rem 1.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -551,107 +546,75 @@ body::after {
 .profile-verified-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 600;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   color: #38bdf8;
-  background: rgba(56, 189, 248, 0.12);
+  background: rgba(56, 189, 248, 0.1);
   border: 1px solid rgba(56, 189, 248, 0.25);
-  padding: 0.25rem 0.75rem;
+  padding: 0.3rem 0.85rem;
   border-radius: var(--radius-full);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .exact-text-box {
   width: 100%;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  color: #e2e8f0;
-  font-size: 0.98rem;
-  line-height: 1.8;
-  white-space: pre-wrap; /* Preserves exact formatting & line breaks */
-  word-break: break-word;
-  font-family: inherit;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.6rem;
 }
 
+/* Individual Q&A Profile Line Row */
 .profile-line {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  padding: 0.25rem 0;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
 }
 
-.profile-line:last-child {
-  border-bottom: none;
+.profile-line:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateX(2px);
 }
 
-/* Default Label & Value Colors */
+/* Question (Label) Styling - UNIFORM across ALL questions */
 .profile-label {
-  color: #818cf8; /* Vibrant Indigo Label */
+  color: #94a3b8; /* Sleek Corporate Slate Blue Gray */
+  font-size: 0.88rem; /* Uniform question text size */
   font-weight: 600;
-  margin-right: 0.4rem;
-  font-size: 0.94rem;
-  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Outfit', sans-serif;
 }
 
+/* Answer (Value) Styling - UNIFORM across ALL answers */
 .profile-value {
-  color: #f8fafc; /* Crisp Bright White Content Value */
-  font-weight: 500;
-}
-
-/* Specific Highlighted Categories */
-.label-name {
-  color: #38bdf8 !important; /* Sky Blue for Name Label */
-  font-size: 1.05rem;
-}
-
-.value-name {
-  color: #ffffff !important;
-  font-weight: 700 !important;
-  font-size: 1.1rem;
-}
-
-.label-email {
-  color: #c084fc !important; /* Soft Purple for Email Label */
-}
-
-.value-email {
-  color: #38bdf8 !important; /* Bright Cyan for Email Content */
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.label-phone {
-  color: #34d399 !important; /* Emerald Green for Phone Label */
-}
-
-.value-phone {
-  color: #6ee7b7 !important; /* Mint Green for Phone Content */
-}
-
-.label-id {
-  color: #f472b6 !important; /* Pink Accent for ID Label */
-}
-
-.value-id {
-  color: #fbcfe8 !important; /* Light Pink for ID Content */
-  font-family: 'JetBrains Mono', monospace;
-  background: rgba(244, 114, 182, 0.12);
-  padding: 0.1rem 0.5rem;
-  border-radius: var(--radius-sm);
+  color: #ffffff; /* Crisp Executive Bright White */
+  font-size: 1.08rem; /* Uniform answer text size */
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  text-align: right;
+  word-break: break-word;
 }
 
 .profile-text {
-  color: #e2e8f0;
+  color: #cbd5e1;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 /* Loading & Error States */
