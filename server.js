@@ -39,7 +39,12 @@ function initStorage() {
   try {
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
     if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-    if (!fs.existsSync(PROFILES_FILE)) fs.writeFileSync(PROFILES_FILE, JSON.stringify({}), 'utf8');
+    if (!fs.existsSync(PROFILES_FILE)) {
+      fs.writeFileSync(PROFILES_FILE, JSON.stringify({}), 'utf8');
+    } else {
+      const raw = fs.readFileSync(PROFILES_FILE, 'utf8');
+      memoryProfiles = JSON.parse(raw) || {};
+    }
   } catch (e) {}
 }
 initStorage();
@@ -285,6 +290,210 @@ app.get('/api/profiles/:id', async (req, res) => {
   }
 
   res.json(profile);
+});
+
+// API Endpoint: List All Profiles (History)
+app.get('/api/profiles', async (req, res) => {
+  let list = [];
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('employee_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        list = data.map(item => ({
+          id: item.id,
+          photoUrl: item.photo_url || '/assets/default-avatar.svg',
+          companyLogoUrl: item.company_logo_url || '/assets/isdd-logo-light.png',
+          content: item.content,
+          createdAt: item.created_at
+        }));
+        return res.json({ profiles: list });
+      }
+    } catch (e) {
+      console.warn('Supabase list exception:', e.message);
+    }
+  }
+
+  // Local fallback
+  try {
+    if (fs.existsSync(PROFILES_FILE)) {
+      const raw = fs.readFileSync(PROFILES_FILE, 'utf8');
+      memoryProfiles = JSON.parse(raw) || {};
+    }
+  } catch (e) {}
+
+  list = Object.values(memoryProfiles).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  res.json({ profiles: list });
+});
+
+// API Endpoint: Update Profile by ID (Live Edit without changing QR link)
+app.put('/api/profiles/:id', upload, async (req, res) => {
+  try {
+    const id = req.params.id.toUpperCase();
+    const content = (req.body.content || '').replace(/\r\n/g, '\n');
+
+    if (!content.trim()) {
+      return res.status(400).json({ error: 'Employee content is required.' });
+    }
+
+    // Fetch existing profile to retain URLs if unchanged
+    let existingProfile = null;
+    if (supabase) {
+      const { data } = await supabase.from('employee_profiles').select('*').eq('id', id).single();
+      if (data) {
+        existingProfile = {
+          photoUrl: data.photo_url,
+          companyLogoUrl: data.company_logo_url
+        };
+      }
+    }
+    if (!existingProfile) {
+      existingProfile = memoryProfiles[id] || {
+        photoUrl: '/assets/default-avatar.svg',
+        companyLogoUrl: '/assets/isdd-logo-light.png'
+      };
+    }
+
+    let photoUrl = existingProfile.photoUrl || '/assets/default-avatar.svg';
+    let companyLogoUrl = existingProfile.companyLogoUrl || '/assets/isdd-logo-light.png';
+
+    const photoFile = req.files && req.files['photo'] ? req.files['photo'][0] : null;
+    const companyLogoFile = req.files && req.files['companyLogo'] ? req.files['companyLogo'][0] : null;
+
+    // 1. New Employee Photo if provided
+    if (photoFile) {
+      if (supabase) {
+        try {
+          const ext = path.extname(photoFile.originalname) || '.jpg';
+          const fileName = `photo-${id}-${Date.now()}${ext}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('employee-photos')
+            .upload(fileName, photoFile.buffer, {
+              contentType: photoFile.mimetype || 'image/jpeg',
+              upsert: true
+            });
+
+          if (!uploadError) {
+            const { data: publicUrlData } = supabase.storage
+              .from('employee-photos')
+              .getPublicUrl(fileName);
+            photoUrl = publicUrlData.publicUrl;
+          } else {
+            photoUrl = `data:${photoFile.mimetype};base64,${photoFile.buffer.toString('base64')}`;
+          }
+        } catch (e) {
+          photoUrl = `data:${photoFile.mimetype};base64,${photoFile.buffer.toString('base64')}`;
+        }
+      } else {
+        const mimeType = photoFile.mimetype || 'image/jpeg';
+        photoUrl = `data:${mimeType};base64,${photoFile.buffer.toString('base64')}`;
+      }
+    } else if (req.body.photoBase64) {
+      photoUrl = req.body.photoBase64;
+    }
+
+    // 2. New Company Logo if provided
+    if (companyLogoFile) {
+      if (supabase) {
+        try {
+          const ext = path.extname(companyLogoFile.originalname) || '.png';
+          const fileName = `logo-${id}-${Date.now()}${ext}`;
+          
+          const { error: logoUploadError } = await supabase.storage
+            .from('employee-photos')
+            .upload(fileName, companyLogoFile.buffer, {
+              contentType: companyLogoFile.mimetype || 'image/png',
+              upsert: true
+            });
+
+          if (!logoUploadError) {
+            const { data: publicUrlData } = supabase.storage
+              .from('employee-photos')
+              .getPublicUrl(fileName);
+            companyLogoUrl = publicUrlData.publicUrl;
+          } else {
+            companyLogoUrl = `data:${companyLogoFile.mimetype};base64,${companyLogoFile.buffer.toString('base64')}`;
+          }
+        } catch (e) {
+          companyLogoUrl = `data:${companyLogoFile.mimetype};base64,${companyLogoFile.buffer.toString('base64')}`;
+        }
+      } else {
+        const mimeType = companyLogoFile.mimetype || 'image/png';
+        companyLogoUrl = `data:${mimeType};base64,${companyLogoFile.buffer.toString('base64')}`;
+      }
+    } else if (req.body.companyLogoBase64) {
+      companyLogoUrl = req.body.companyLogoBase64;
+    }
+
+    const updatedProfile = {
+      id,
+      photoUrl,
+      companyLogoUrl,
+      content,
+      updatedAt: new Date().toISOString(),
+      createdAt: existingProfile.createdAt || new Date().toISOString()
+    };
+
+    // Save update in DB / memory
+    if (supabase) {
+      const { error: dbError } = await supabase
+        .from('employee_profiles')
+        .update({
+          photo_url: photoUrl,
+          company_logo_url: companyLogoUrl,
+          content
+        })
+        .eq('id', id);
+
+      if (dbError) {
+        console.error('Supabase DB Update Error:', dbError.message);
+        memoryProfiles[id] = updatedProfile;
+      }
+    } else {
+      memoryProfiles[id] = updatedProfile;
+      try {
+        fs.writeFileSync(PROFILES_FILE, JSON.stringify(memoryProfiles, null, 2), 'utf8');
+      } catch (e) {}
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated live successfully!',
+      profile: updatedProfile
+    });
+
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    res.status(500).json({ error: 'Failed to update employee profile: ' + err.message });
+  }
+});
+
+// API Endpoint: Delete Profile by ID
+app.delete('/api/profiles/:id', async (req, res) => {
+  const id = req.params.id.toUpperCase();
+
+  try {
+    if (supabase) {
+      await supabase.from('employee_profiles').delete().eq('id', id);
+    }
+
+    delete memoryProfiles[id];
+    try {
+      if (fs.existsSync(PROFILES_FILE)) {
+        fs.writeFileSync(PROFILES_FILE, JSON.stringify(memoryProfiles, null, 2), 'utf8');
+      }
+    } catch (e) {}
+
+    res.json({ success: true, message: `Profile ${id} deleted successfully.` });
+  } catch (err) {
+    console.error('Error deleting profile:', err);
+    res.status(500).json({ error: 'Failed to delete profile: ' + err.message });
+  }
 });
 
 // Route for Profile View page

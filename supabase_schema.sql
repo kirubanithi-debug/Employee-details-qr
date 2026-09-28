@@ -25,6 +25,18 @@ create policy "Allow public insert access to employee profiles"
   on public.employee_profiles for insert
   with check (true);
 
+-- Allow public update access to update employee profiles live
+drop policy if exists "Allow public update access to employee profiles" on public.employee_profiles;
+create policy "Allow public update access to employee profiles"
+  on public.employee_profiles for update
+  using (true);
+
+-- Allow public delete access to remove employee profiles
+drop policy if exists "Allow public delete access to employee profiles" on public.employee_profiles;
+create policy "Allow public delete access to employee profiles"
+  on public.employee_profiles for delete
+  using (true);
+
 -- 2. Setup Storage Bucket for Employee Photos
 insert into storage.buckets (id, name, public)
 values ('employee-photos', 'employee-photos', true)
